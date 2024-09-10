@@ -14,6 +14,7 @@
 
 package org.eclipse.edc.identityhub.keypairs;
 
+import org.eclipse.edc.identityhub.spi.keypair.events.KeyPairActivated;
 import org.eclipse.edc.identityhub.spi.keypair.events.KeyPairAdded;
 import org.eclipse.edc.identityhub.spi.keypair.events.KeyPairEvent;
 import org.eclipse.edc.identityhub.spi.keypair.events.KeyPairEventListener;
@@ -61,6 +62,16 @@ public class KeyPairEventPublisher implements KeyPairEventListener {
                 .participantId(keyPair.getParticipantId())
                 .keyPairResourceId(keyPair.getId())
                 .keyId(keyPair.getKeyId())
+                .build();
+        publish(event);
+    }
+
+    @Override
+    public void activated(KeyPairResource activatedKeyPair) {
+        var event = KeyPairActivated.Builder.newInstance()
+                .participantId(activatedKeyPair.getParticipantId())
+                .keyPairResourceId(activatedKeyPair.getId())
+                .keyId(activatedKeyPair.getKeyId())
                 .build();
         publish(event);
     }

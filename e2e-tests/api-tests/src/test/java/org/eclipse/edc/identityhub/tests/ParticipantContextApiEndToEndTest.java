@@ -179,7 +179,7 @@ public class ParticipantContextApiEndToEndTest {
             verify(subscriber).on(argThat(env -> ((ParticipantContextCreated) env.getPayload()).getParticipantId().equals(manifest.getParticipantId())));
 
             assertThat(context.getKeyPairsForParticipant(manifest.getParticipantId())).hasSize(1)
-                    .allSatisfy(kpr -> assertThat(kpr.getState()).isEqualTo(isActive ? KeyPairState.ACTIVE.code() : KeyPairState.CREATED.code()));
+                    .allSatisfy(kpr -> assertThat(kpr.getState()).isEqualTo(isActive ? KeyPairState.ACTIVATED.code() : KeyPairState.CREATED.code()));
             assertThat(context.getDidForParticipant(manifest.getParticipantId())).hasSize(1)
                     .allSatisfy(dd -> assertThat(dd.getVerificationMethod()).hasSize(1));
 

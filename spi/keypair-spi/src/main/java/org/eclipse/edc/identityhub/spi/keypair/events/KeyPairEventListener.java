@@ -54,4 +54,13 @@ public interface KeyPairEventListener {
     default void revoked(KeyPairResource keyPair) {
 
     }
+
+    /**
+     * A {@link KeyPairResource} was activated. Only keys that are in the {@link org.eclipse.edc.identityhub.spi.keypair.model.KeyPairState#ACTIVATED} state can be used for signing.
+     *
+     * @param activatedKeyPair the {@link KeyPairResource} that was activated
+     */
+    default void activated(KeyPairResource activatedKeyPair) {
+
+    }
 }

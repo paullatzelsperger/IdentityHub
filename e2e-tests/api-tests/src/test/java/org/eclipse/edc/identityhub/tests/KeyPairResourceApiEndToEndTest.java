@@ -16,6 +16,7 @@ package org.eclipse.edc.identityhub.tests;
 
 import io.restassured.http.Header;
 import org.eclipse.edc.identithub.spi.did.store.DidResourceStore;
+import org.eclipse.edc.identityhub.spi.keypair.events.KeyPairActivated;
 import org.eclipse.edc.identityhub.spi.keypair.events.KeyPairAdded;
 import org.eclipse.edc.identityhub.spi.keypair.events.KeyPairRotated;
 import org.eclipse.edc.identityhub.spi.keypair.model.KeyPairResource;
@@ -47,6 +48,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class KeyPairResourceApiEndToEndTest {
 
@@ -427,7 +429,10 @@ public class KeyPairResourceApiEndToEndTest {
         }
 
         @Test
-        void activate(IdentityHubEndToEndTestContext context) {
+        void activate(IdentityHubEndToEndTestContext context, EventRouter router) {
+            var subscriber = mock(EventSubscriber.class);
+            router.registerSync(KeyPairActivated.class, subscriber);
+
             var superUserKey = context.createSuperUser();
             var user1 = "user1";
             var token = context.createParticipant(user1);
@@ -435,6 +440,7 @@ public class KeyPairResourceApiEndToEndTest {
 
             assertThat(Arrays.asList(token, superUserKey))
                     .allSatisfy(t -> {
+                        reset(subscriber);
                         context.getIdentityApiEndpoint().baseRequest()
                                 .contentType(JSON)
                                 .header(new Header("x-api-key", t))
@@ -447,6 +453,38 @@ public class KeyPairResourceApiEndToEndTest {
                         assertThat(context.getDidForParticipant(user1))
                                 .hasSize(1)
                                 .allSatisfy(dd -> assertThat(dd.getVerificationMethod()).noneMatch(vm -> vm.getId().equals(keyPairId)));
+
+                        verify(subscriber).on(argThat(e -> e.getPayload() instanceof KeyPairActivated kpa && kpa.getKeyPairResourceId().equals(keyPairId)));
+                    });
+        }
+
+        @Test
+        void activate_notExists(IdentityHubEndToEndTestContext context, EventRouter router) {
+            var subscriber = mock(EventSubscriber.class);
+            router.registerSync(KeyPairActivated.class, subscriber);
+
+            var superUserKey = context.createSuperUser();
+            var user1 = "user1";
+            var token = context.createParticipant(user1);
+            var keyPairId = "non-exist-keypair-id";
+
+            assertThat(Arrays.asList(token, superUserKey))
+                    .allSatisfy(t -> {
+                        reset(subscriber);
+                        context.getIdentityApiEndpoint().baseRequest()
+                                .contentType(JSON)
+                                .header(new Header("x-api-key", t))
+                                .post("/v1alpha/participants/%s/keypairs/%s/activate".formatted(toBase64(user1), keyPairId))
+                                .then()
+                                .log().ifError()
+                                .statusCode(404)
+                                .body(notNullValue());
+
+                        assertThat(context.getDidForParticipant(user1))
+                                .hasSize(1)
+                                .allSatisfy(dd -> assertThat(dd.getVerificationMethod()).noneMatch(vm -> vm.getId().equals(keyPairId)));
+
+                        verifyNoInteractions(subscriber);
                     });
         }
 
@@ -468,7 +506,7 @@ public class KeyPairResourceApiEndToEndTest {
 
             assertThat(context.getKeyPairsForParticipant(user1))
                     .hasSize(2)
-                    .allMatch(keyPairResource -> keyPairResource.getState() == KeyPairState.ACTIVE.code());
+                    .allMatch(keyPairResource -> keyPairResource.getState() == KeyPairState.ACTIVATED.code());
         }
 
         @Test

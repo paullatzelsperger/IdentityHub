@@ -22,6 +22,7 @@ import org.eclipse.edc.identithub.spi.did.DidDocumentService;
 import org.eclipse.edc.identithub.spi.did.model.DidResource;
 import org.eclipse.edc.identithub.spi.did.model.DidState;
 import org.eclipse.edc.identithub.spi.did.store.DidResourceStore;
+import org.eclipse.edc.identityhub.spi.keypair.events.KeyPairActivated;
 import org.eclipse.edc.identityhub.spi.keypair.events.KeyPairAdded;
 import org.eclipse.edc.identityhub.spi.keypair.events.KeyPairRevoked;
 import org.eclipse.edc.identityhub.spi.participantcontext.ParticipantContextService;
@@ -130,8 +131,6 @@ public class DidDocumentServiceImpl implements DidDocumentService, EventSubscrib
                                 "but was '%s'.")
                                 .formatted(did, participantId, ParticipantContextState.ACTIVATED, state));
                     });
-
-
         });
     }
 
@@ -252,9 +251,22 @@ public class DidDocumentServiceImpl implements DidDocumentService, EventSubscrib
             keypairAdded(event);
         } else if (payload instanceof KeyPairRevoked event) {
             keypairRevoked(event);
+        } else if (payload instanceof KeyPairActivated event) {
+            keyPairActivated(event);
         } else {
             monitor.warning("Received event with unexpected payload type: %s".formatted(payload.getClass()));
         }
+    }
+
+    private void keyPairActivated(KeyPairActivated event) {
+        transactionContext.execute(() -> {
+            var resources = findByParticipantId(event.getParticipantId());
+            if (resources.isEmpty()) {
+                monitor.warning("No DidResources were found for participant '%s'. No updated will be performed.".formatted(event.getParticipantId()));
+            }
+
+
+        });
     }
 
     private void keypairRevoked(KeyPairRevoked event) {

@@ -121,7 +121,7 @@ public class KeyPairResource extends ParticipantResource {
     }
 
     public void activate() {
-        state = KeyPairState.ACTIVE.code();
+        state = KeyPairState.ACTIVATED.code();
     }
 
     public static final class Builder extends ParticipantResource.Builder<KeyPairResource, KeyPairResource.Builder> {

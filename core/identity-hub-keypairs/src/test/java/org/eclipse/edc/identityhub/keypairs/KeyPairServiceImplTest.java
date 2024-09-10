@@ -86,7 +86,7 @@ class KeyPairServiceImplTest {
         verify(vault).storeSecret(eq(key.getPrivateKeyAlias()), anyString());
         verify(keyPairResourceStore).create(argThat(kpr -> kpr.isDefaultPair() == makeDefault &&
                 kpr.getParticipantId().equals("some-participant") &&
-                kpr.getState() == KeyPairState.ACTIVE.code()));
+                kpr.getState() == KeyPairState.ACTIVATED.code()));
         verify(observableMock).invokeForEach(any());
         verifyNoMoreInteractions(keyPairResourceStore, vault, observableMock);
     }
@@ -111,7 +111,7 @@ class KeyPairServiceImplTest {
         verify(keyPairResourceStore, isActive ? never() : times(1)).query(any());
         verify(keyPairResourceStore).create(argThat(kpr -> kpr.isDefaultPair() &&
                 kpr.getParticipantId().equals("some-participant") &&
-                kpr.getState() == (isActive ? KeyPairState.ACTIVE.code() : KeyPairState.CREATED.code())));
+                kpr.getState() == (isActive ? KeyPairState.ACTIVATED.code() : KeyPairState.CREATED.code())));
         verify(observableMock).invokeForEach(any());
         verifyNoMoreInteractions(keyPairResourceStore, vault, observableMock);
     }
