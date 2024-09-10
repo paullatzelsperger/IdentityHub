@@ -23,7 +23,6 @@ import org.eclipse.edc.identithub.spi.did.model.DidResource;
 import org.eclipse.edc.identithub.spi.did.model.DidState;
 import org.eclipse.edc.identithub.spi.did.store.DidResourceStore;
 import org.eclipse.edc.identityhub.spi.keypair.events.KeyPairActivated;
-import org.eclipse.edc.identityhub.spi.keypair.events.KeyPairAdded;
 import org.eclipse.edc.identityhub.spi.keypair.events.KeyPairRevoked;
 import org.eclipse.edc.identityhub.spi.participantcontext.ParticipantContextService;
 import org.eclipse.edc.identityhub.spi.participantcontext.events.ParticipantContextUpdated;
@@ -247,8 +246,6 @@ public class DidDocumentServiceImpl implements DidDocumentService, EventSubscrib
         var payload = eventEnvelope.getPayload();
         if (payload instanceof ParticipantContextUpdated event) {
             updated(event);
-        } else if (payload instanceof KeyPairAdded event) {
-            keypairAdded(event);
         } else if (payload instanceof KeyPairRevoked event) {
             keypairRevoked(event);
         } else if (payload instanceof KeyPairActivated event) {
@@ -260,12 +257,37 @@ public class DidDocumentServiceImpl implements DidDocumentService, EventSubscrib
 
     private void keyPairActivated(KeyPairActivated event) {
         transactionContext.execute(() -> {
-            var resources = findByParticipantId(event.getParticipantId());
-            if (resources.isEmpty()) {
+            var didResources = findByParticipantId(event.getParticipantId());
+            if (didResources.isEmpty()) {
                 monitor.warning("No DidResources were found for participant '%s'. No updated will be performed.".formatted(event.getParticipantId()));
             }
 
+            // add the public key as verification method to all did resources
+            var serialized = event.getPublicKeySerialized();
+            var publicKey = keyParserRegistry.parse(serialized);
 
+            if (publicKey.failed()) {
+                monitor.warning("Error adding KeyPair '%s' to DID Document of participant '%s': %s".formatted(event.getKeyPairResourceId(), event.getParticipantId(), publicKey.getFailureDetail()));
+                return;
+            }
+
+            var jwk = CryptoConverter.createJwk(new KeyPair((PublicKey) publicKey.getContent(), null));
+
+            var errors = didResources.stream()
+                    .peek(dd -> dd.getDocument().getVerificationMethod().add(VerificationMethod.Builder.newInstance()
+                            .id(event.getKeyId())
+                            .publicKeyJwk(jwk.toJSONObject())
+                            .controller(dd.getDocument().getId())
+                            .type(event.getKeyType())
+                            .build()))
+                    .map(didResourceStore::update)
+                    .filter(StoreResult::failed)
+                    .map(AbstractResult::getFailureDetail)
+                    .collect(Collectors.joining(","));
+
+            if (!errors.isEmpty()) {
+                monitor.warning("Updating DID documents after activating a KeyPair failed: %s".formatted(errors));
+            }
         });
     }
 
@@ -283,40 +305,6 @@ public class DidDocumentServiceImpl implements DidDocumentService, EventSubscrib
         if (!errors.isEmpty()) {
             monitor.warning("Updating DID documents after revoking a KeyPair failed: %s".formatted(errors));
         }
-    }
-
-    private void keypairAdded(KeyPairAdded event) {
-        var didResources = findByParticipantId(event.getParticipantId());
-        if (didResources.isEmpty()) {
-            monitor.warning("No DidResources were found for participant '%s'. No updated will be performed.".formatted(event.getParticipantId()));
-            return;
-        }
-        var serialized = event.getPublicKeySerialized();
-        var publicKey = keyParserRegistry.parse(serialized);
-
-        if (publicKey.failed()) {
-            monitor.warning("Error adding KeyPair '%s' to DID Document of participant '%s': %s".formatted(event.getKeyPairResourceId(), event.getParticipantId(), publicKey.getFailureDetail()));
-            return;
-        }
-
-        var jwk = CryptoConverter.createJwk(new KeyPair((PublicKey) publicKey.getContent(), null));
-
-        var errors = didResources.stream()
-                .peek(dd -> dd.getDocument().getVerificationMethod().add(VerificationMethod.Builder.newInstance()
-                        .id(event.getKeyId())
-                        .publicKeyJwk(jwk.toJSONObject())
-                        .controller(dd.getDocument().getId())
-                        .type(event.getType())
-                        .build()))
-                .map(didResourceStore::update)
-                .filter(StoreResult::failed)
-                .map(AbstractResult::getFailureDetail)
-                .collect(Collectors.joining(","));
-
-        if (!errors.isEmpty()) {
-            monitor.warning("Updating DID documents after adding a KeyPair failed: %s".formatted(errors));
-        }
-
     }
 
     private void updated(ParticipantContextUpdated event) {

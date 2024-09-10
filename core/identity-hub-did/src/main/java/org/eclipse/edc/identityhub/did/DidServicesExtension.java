@@ -18,7 +18,6 @@ import org.eclipse.edc.identithub.spi.did.DidDocumentPublisherRegistry;
 import org.eclipse.edc.identithub.spi.did.DidDocumentService;
 import org.eclipse.edc.identithub.spi.did.store.DidResourceStore;
 import org.eclipse.edc.identityhub.spi.keypair.events.KeyPairActivated;
-import org.eclipse.edc.identityhub.spi.keypair.events.KeyPairAdded;
 import org.eclipse.edc.identityhub.spi.keypair.events.KeyPairRevoked;
 import org.eclipse.edc.identityhub.spi.participantcontext.ParticipantContextService;
 import org.eclipse.edc.identityhub.spi.participantcontext.events.ParticipantContextUpdated;
@@ -69,7 +68,6 @@ public class DidServicesExtension implements ServiceExtension {
         var service = new DidDocumentServiceImpl(transactionContext, didResourceStore,
                 getDidPublisherRegistry(), participantContextService, context.getMonitor().withPrefix("DidDocumentService"), keyParserRegistry);
         eventRouter.registerSync(ParticipantContextUpdated.class, service);
-        eventRouter.registerSync(KeyPairAdded.class, service);
         eventRouter.registerSync(KeyPairRevoked.class, service);
         eventRouter.registerSync(KeyPairActivated.class, service);
         return service;

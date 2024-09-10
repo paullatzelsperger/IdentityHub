@@ -94,10 +94,17 @@ public class KeyPairServiceImpl implements KeyPairService, EventSubscriber {
                     .serializedPublicKey(key.getContent())
                     .timestamp(Instant.now().toEpochMilli())
                     .participantId(participantId)
+                    .keyContext(keyDescriptor.getType())
                     .build();
 
             return ServiceResult.from(keyPairResourceStore.create(newResource))
-                    .onSuccess(v -> observable.invokeForEach(l -> l.added(newResource, keyDescriptor.getType())));
+                    .onSuccess(v -> observable.invokeForEach(l -> l.added(newResource, keyDescriptor.getType())))
+                    .compose(v -> {
+                        if (keyDescriptor.isActive()) {
+                            return activateKeyPair(newResource);
+                        }
+                        return ServiceResult.success();
+                    });
         });
     }
 
@@ -188,7 +195,7 @@ public class KeyPairServiceImpl implements KeyPairService, EventSubscriber {
         existingKeyPair.activate();
 
         return ServiceResult.from(keyPairResourceStore.update(existingKeyPair)
-                .onSuccess(u -> observable.invokeForEach(l -> l.activated(existingKeyPair))));
+                .onSuccess(u -> observable.invokeForEach(l -> l.activated(existingKeyPair, existingKeyPair.getKeyContext()))));
     }
 
     private void created(ParticipantContextCreated event) {

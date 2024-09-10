@@ -28,11 +28,15 @@ public class KeyPairActivated extends KeyPairEvent {
 
     @Override
     public String name() {
-        return "keypair.added";
+        return "keypair.activated";
     }
 
-    public String getType() {
+    public String getKeyType() {
         return type;
+    }
+
+    public String getPublicKeySerialized() {
+        return publicKeySerialized;
     }
 
     @JsonPOJOBuilder(withPrefix = "")
@@ -45,6 +49,12 @@ public class KeyPairActivated extends KeyPairEvent {
         @JsonCreator
         public static Builder newInstance() {
             return new KeyPairActivated.Builder();
+        }
+
+        public Builder publicKey(String publicKeySerialized, String type) {
+            event.publicKeySerialized = publicKeySerialized;
+            event.type = type;
+            return this;
         }
 
         @Override

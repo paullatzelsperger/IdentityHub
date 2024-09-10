@@ -198,6 +198,7 @@ public abstract class KeyPairResourceStoreTestBase {
                 .privateKeyAlias("private-key-alias")
                 .participantId("test-participant")
                 .serializedPublicKey("this-is-a-pem-string")
+                .keyContext("JsonWebKey2020")
                 .useDuration(Duration.ofDays(6).toMillis());
     }
 }

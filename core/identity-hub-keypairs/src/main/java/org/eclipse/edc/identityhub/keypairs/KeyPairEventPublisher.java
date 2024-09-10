@@ -67,10 +67,11 @@ public class KeyPairEventPublisher implements KeyPairEventListener {
     }
 
     @Override
-    public void activated(KeyPairResource activatedKeyPair) {
+    public void activated(KeyPairResource activatedKeyPair, String type) {
         var event = KeyPairActivated.Builder.newInstance()
                 .participantId(activatedKeyPair.getParticipantId())
                 .keyPairResourceId(activatedKeyPair.getId())
+                .publicKey(activatedKeyPair.getSerializedPublicKey(), type)
                 .keyId(activatedKeyPair.getKeyId())
                 .build();
         publish(event);
