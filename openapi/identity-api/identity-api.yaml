@@ -228,6 +228,10 @@ paths:
         "200":
           description: "The ParticipantContext was created successfully, its API token\
             \ is returned in the response body."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateParticipantContextResponse"
         "400":
           description: "Request body was malformed, or the request could not be processed"
           content:
@@ -254,14 +258,14 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ApiErrorDetail"
-  /v1alpha/participants/{participantId}:
+  /v1alpha/participants/{participantContextId}:
     get:
       tags:
       - Participant Context
       description: Gets ParticipantContexts by ID.
       operationId: getParticipant
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         required: true
         style: simple
@@ -306,7 +310,7 @@ paths:
       description: Delete a ParticipantContext.
       operationId: deleteParticipant
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         required: true
         style: simple
@@ -345,14 +349,14 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ApiErrorDetail"
-  /v1alpha/participants/{participantId}/credentials:
+  /v1alpha/participants/{participantContextId}/credentials:
     get:
       tags:
       - Verifiable Credentials
       description: Query VerifiableCredentials by type.
       operationId: queryCredentialsByType
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         description: Base64-Url encode Participant Context ID
         required: true
@@ -399,7 +403,7 @@ paths:
       description: Update an existing VerifiableCredential.
       operationId: updateCredential
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         description: Base64-Url encode Participant Context ID
         required: true
@@ -447,7 +451,7 @@ paths:
       description: Adds a new VerifiableCredential into the system.
       operationId: addCredential
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         description: Base64-Url encode Participant Context ID
         required: true
@@ -455,7 +459,7 @@ paths:
         explode: false
         schema:
           type: string
-      - name: participantId
+      - name: participantContextId
         in: path
         required: true
         style: simple
@@ -496,14 +500,14 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ApiErrorDetail"
-  /v1alpha/participants/{participantId}/credentials/{credentialId}:
+  /v1alpha/participants/{participantContextId}/credentials/{credentialId}:
     get:
       tags:
       - Verifiable Credentials
       description: Finds a VerifiableCredential by ID.
       operationId: getCredential
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         description: Base64-Url encode Participant Context ID
         required: true
@@ -556,7 +560,7 @@ paths:
       description: Delete a VerifiableCredential.
       operationId: deleteCredential
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         description: Base64-Url encode Participant Context ID
         required: true
@@ -603,7 +607,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ApiErrorDetail"
-  /v1alpha/participants/{participantId}/dids/publish:
+  /v1alpha/participants/{participantContextId}/dids/publish:
     post:
       tags:
       - DID
@@ -611,7 +615,7 @@ paths:
         in the database.
       operationId: publishDid
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         description: Base64-Url encode Participant Context ID
         required: true
@@ -644,14 +648,14 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ApiErrorDetail"
-  /v1alpha/participants/{participantId}/dids/query:
+  /v1alpha/participants/{participantContextId}/dids/query:
     post:
       tags:
       - DID
       description: Query for DID documents.
       operationId: queryDids
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         description: Base64-Url encode Participant Context ID
         required: true
@@ -690,14 +694,14 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ApiErrorDetail"
-  /v1alpha/participants/{participantId}/dids/state:
+  /v1alpha/participants/{participantContextId}/dids/state:
     post:
       tags:
       - DID
       description: Get state of a DID document
       operationId: getDidState
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         description: Base64-Url encode Participant Context ID
         required: true
@@ -730,7 +734,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ApiErrorDetail"
-  /v1alpha/participants/{participantId}/dids/unpublish:
+  /v1alpha/participants/{participantContextId}/dids/unpublish:
     post:
       tags:
       - DID
@@ -738,7 +742,7 @@ paths:
         in the database.
       operationId: unpublishDid
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         description: Base64-Url encode Participant Context ID
         required: true
@@ -780,14 +784,14 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ApiErrorDetail"
-  /v1alpha/participants/{participantId}/dids/{did}/endpoints:
+  /v1alpha/participants/{participantContextId}/dids/{did}/endpoints:
     post:
       tags:
       - DID
       description: Adds a service endpoint to a particular DID document.
       operationId: addDidEndpoint
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         description: Base64-Url encode Participant Context ID
         required: true
@@ -850,7 +854,7 @@ paths:
       description: Removes a service endpoint from a particular DID document.
       operationId: deleteDidEndpoint
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         description: Base64-Url encode Participant Context ID
         required: true
@@ -915,7 +919,7 @@ paths:
       description: Replaces a service endpoint of a particular DID document.
       operationId: replaceDidEndpoint
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         description: Base64-Url encode Participant Context ID
         required: true
@@ -972,14 +976,14 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ApiErrorDetail"
-  /v1alpha/participants/{participantId}/keypairs:
+  /v1alpha/participants/{participantContextId}/keypairs:
     get:
       tags:
       - Key Pairs
       description: Finds all KeyPairResources for a particular ParticipantContext.
       operationId: queryKeyPairByParticipantId
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         required: true
         style: simple
@@ -1028,7 +1032,7 @@ paths:
         \ the vault."
       operationId: addKeyPair
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         required: true
         style: simple
@@ -1076,14 +1080,14 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ApiErrorDetail"
-  /v1alpha/participants/{participantId}/keypairs/{keyPairId}:
+  /v1alpha/participants/{participantContextId}/keypairs/{keyPairId}:
     get:
       tags:
       - Key Pairs
       description: Finds a KeyPairResource by ID.
       operationId: getKeyPair
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         description: Base64-Url encode Participant Context ID
         required: true
@@ -1130,7 +1134,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ApiErrorDetail"
-  /v1alpha/participants/{participantId}/keypairs/{keyPairId}/activate:
+  /v1alpha/participants/{participantContextId}/keypairs/{keyPairId}/activate:
     post:
       tags:
       - Key Pairs
@@ -1138,7 +1142,7 @@ paths:
         state is anything other than ACTIVE or CREATED.
       operationId: activateKeyPair
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         description: Base64-Url encode Participant Context ID
         required: true
@@ -1181,7 +1185,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ApiErrorDetail"
-  /v1alpha/participants/{participantId}/keypairs/{keyPairId}/revoke:
+  /v1alpha/participants/{participantContextId}/keypairs/{keyPairId}/revoke:
     post:
       tags:
       - Key Pairs
@@ -1189,7 +1193,7 @@ paths:
         \ ID and create a new successor key."
       operationId: revokeKeyPair
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         description: Base64-Url encode Participant Context ID
         required: true
@@ -1238,7 +1242,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ApiErrorDetail"
-  /v1alpha/participants/{participantId}/keypairs/{keyPairId}/rotate:
+  /v1alpha/participants/{participantContextId}/keypairs/{keyPairId}/rotate:
     post:
       tags:
       - Key Pairs
@@ -1246,7 +1250,7 @@ paths:
         \ ID and optionally create a new successor key."
       operationId: rotateKeyPair
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         description: Base64-Url encode Participant Context ID
         required: true
@@ -1303,7 +1307,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ApiErrorDetail"
-  /v1alpha/participants/{participantId}/roles:
+  /v1alpha/participants/{participantContextId}/roles:
     put:
       tags:
       - Participant Context
@@ -1312,7 +1316,7 @@ paths:
         \ in the body. Requires elevated privileges."
       operationId: updateParticipantRoles
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         required: true
         style: simple
@@ -1354,7 +1358,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ApiErrorDetail"
-  /v1alpha/participants/{participantId}/state:
+  /v1alpha/participants/{participantContextId}/state:
     post:
       tags:
       - Participant Context
@@ -1362,7 +1366,7 @@ paths:
         \ i.e. activating an already active ParticipantContext is a NOOP."
       operationId: activateParticipant
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         required: true
         style: simple
@@ -1413,7 +1417,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ApiErrorDetail"
-  /v1alpha/participants/{participantId}/token:
+  /v1alpha/participants/{participantContextId}/token:
     post:
       tags:
       - Participant Context
@@ -1421,7 +1425,7 @@ paths:
         the new token.
       operationId: regenerateParticipantToken
       parameters:
-      - name: participantId
+      - name: participantContextId
         in: path
         required: true
         style: simple
@@ -1496,6 +1500,15 @@ components:
           type: string
       discriminator:
         propertyName: edctype
+    CreateParticipantContextResponse:
+      type: object
+      properties:
+        apiKey:
+          type: string
+        clientId:
+          type: string
+        clientSecret:
+          type: string
     CredentialStatus:
       type: object
       properties:
@@ -1601,7 +1614,7 @@ components:
           type: string
         keyId:
           type: string
-        participantId:
+        participantContextId:
           type: string
         privateKeyAlias:
           type: string
@@ -1632,7 +1645,7 @@ components:
         lastModified:
           type: integer
           format: int64
-        participantId:
+        participantContextId:
           type: string
         roles:
           type: array
@@ -1768,6 +1781,11 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/CredentialSubject"
+        dataModelVersion:
+          type: string
+          enum:
+          - V_1_1
+          - V_2_0
         description:
           type: string
         expirationDate:
@@ -1796,6 +1814,11 @@ components:
           enum:
           - JSON_LD
           - JWT
+          - VC1_0_LD
+          - VC1_0_JWT
+          - VC2_0_JOSE
+          - VC2_0_SD_JWT
+          - VC2_0_COSE
         rawVc:
           type: string
     VerifiableCredentialManifest:
@@ -1805,7 +1828,7 @@ components:
           type: string
         issuancePolicy:
           $ref: "#/components/schemas/Policy"
-        participantId:
+        participantContextId:
           type: string
         reissuancePolicy:
           $ref: "#/components/schemas/Policy"
@@ -1836,7 +1859,7 @@ components:
           $ref: "#/components/schemas/Policy"
         issuerId:
           type: string
-        participantId:
+        participantContextId:
           type: string
         reissuancePolicy:
           $ref: "#/components/schemas/Policy"
